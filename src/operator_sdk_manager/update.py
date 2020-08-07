@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+import gnupg
+import io
+import logging
+import os
+import os.path
+import requests
+import tempfile
+from lastversion.lastversion import latest as lastversion
+from operator_sdk_manager.util import make_logger
+
+
+def operator_sdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
+                        path: str = os.path.expanduser('~/.local/bin')) -> str:
+    """
+    Update the operator-sdk binary
+    """
+    logger = make_logger()
+    gpg = gnupg.GPG(gnupghome=os.path.expanduser('~/.gnupg'))
+    operator_sdk_key_server_and_id = (
+        'keys.gnupg.net', '8018D6F1B58E194625E38581D16086E39AF46519'
+    )
+    gpg.recv_keys(*operator_sdk_key_server_and_id)
+
+    version = lastversion('operator-framework/operator-sdk')
+    # lastversion sets handlers on the root logger because it's mean.
+    root_logger = logging.getLogger()
+    root_logger.handlers.clear()
+
+    logger.debug(f'Identified latest version as {version}')
+
+    if not os.path.isdir(directory):
+        logger.debug(f'Creating {directory}')
+        os.mkdir(directory)
+    if not os.path.isdir(path):
+        logger.debug(f'Creating {path}')
+        os.mkdir(path)
+
+    downloads = ['operator-sdk', 'ansible-operator', 'helm-operator']
+    download_base_url = (f'https://github.com/operator-framework/operator-sdk/'
+                         f'releases/download/v{version}')
+    arch = 'x86_64-linux-gnu'
+
+    for download in downloads:
+        filename = f'{download}-v{version}-{arch}'
+        download_url = f'{download_base_url}/{filename}'
+        signature_url = f'{download_url}.asc'
+        src = f'{directory}/{filename}'
+        dst = f'{path}/{download}'
+
+        if os.path.isfile(src):
+            logger.debug(f'Already downloaded: {filename}')
+        else:
+            binary_fd, binary_path = tempfile.mkstemp()
+            binary = requests.get(download_url).content
+            with os.fdopen(binary_fd, 'wb') as f:
+                f.write(binary)
+
+            signature = io.BytesIO(requests.get(signature_url).content)
+
+            logger.debug((f'Validating {download_url} with signature '
+                          f'{signature_url}'))
+            if gpg.verify_file(signature, binary_path):
+                logger.debug(f'{filename} passed GPG verification')
+            else:
+                logger.error(f'{filename} failed verification!')
+                raise RuntimeError(f'{filename} failed verification!')
+
+            logger.info(f'Saving {filename} to {src}')
+            with open(src, 'wb') as f:
+                f.write(binary)
+            os.remove(binary_path)
+
+        if os.path.islink(dst):
+            symlink_inode = os.stat(dst)
+            download_inode = os.stat(src)
+            if download_inode == symlink_inode:
+                logger.debug(f'Already linked {src} to {dst}')
+            else:
+                logger.info(f'Updating symlink from {src} to {dst}')
+                os.remove(dst)
+                os.symlink(src, dst)
+        else:
+            logger.info(f'Symlinking {src} to {dst}')
+            os.symlink(src, dst)
+
+    return str(version)
