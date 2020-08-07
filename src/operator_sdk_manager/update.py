@@ -71,6 +71,12 @@ def operator_sdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
                 f.write(binary)
             os.remove(binary_path)
 
+        src_mode = os.stat(src).st_mode
+        src_mode_ex = src_mode | 0o111
+        if src_mode != src_mode_ex:
+            logger.info(f'Making {src} executable.')
+            os.chmod(src, src_mode_ex & 0o7777)
+
         if os.path.islink(dst):
             symlink_inode = os.stat(dst)
             download_inode = os.stat(src)
