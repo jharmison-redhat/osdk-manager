@@ -20,7 +20,6 @@ def operator_sdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
     if not os.path.isdir(gnupghome):
         os.mkdir(gnupghome, mode=0o700)
     gpg = gnupg.GPG(gnupghome=gnupghome)
-    if not os.path.isdir(
     operator_sdk_key_server_and_id = (
         'keys.gnupg.net', '8018D6F1B58E194625E38581D16086E39AF46519'
     )
