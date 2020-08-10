@@ -16,9 +16,18 @@ def operator_sdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
     Update the operator-sdk binary
     """
     logger = make_logger()
+
     gnupghome = os.path.expanduser('~/.gnupg')
     if not os.path.isdir(gnupghome):
+        logger.debug(f'Creating {gnupghome}')
         os.mkdir(gnupghome, mode=0o700)
+    if not os.path.isdir(directory):
+        logger.debug(f'Creating {directory}')
+        os.mkdir(directory)
+    if not os.path.isdir(path):
+        logger.debug(f'Creating {path}')
+        os.mkdir(path)
+
     gpg = gnupg.GPG(gnupghome=gnupghome)
     operator_sdk_key_server_and_id = (
         'keys.gnupg.net', '8018D6F1B58E194625E38581D16086E39AF46519'
@@ -29,15 +38,7 @@ def operator_sdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
     # lastversion sets handlers on the root logger because it's mean.
     root_logger = logging.getLogger()
     root_logger.handlers.clear()
-
     logger.debug(f'Identified latest version as {version}')
-
-    if not os.path.isdir(directory):
-        logger.debug(f'Creating {directory}')
-        os.mkdir(directory)
-    if not os.path.isdir(path):
-        logger.debug(f'Creating {path}')
-        os.mkdir(path)
 
     downloads = ['operator-sdk', 'ansible-operator', 'helm-operator']
     download_base_url = (f'https://github.com/operator-framework/operator-sdk/'
