@@ -29,10 +29,12 @@ def operator_sdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
         os.mkdir(path)
 
     gpg = gnupg.GPG(gnupghome=gnupghome)
-    operator_sdk_key_server_and_id = (
-        'keys.gnupg.net', '8018D6F1B58E194625E38581D16086E39AF46519'
-    )
-    gpg.recv_keys(*operator_sdk_key_server_and_id)
+    operator_sdk_keys = [
+        ('keys.gnupg.net', '8018D6F1B58E194625E38581D16086E39AF46519'),
+        ('keys.gnupg.net', 'BF6F6F18846753754CBB1DDFBC9679ED89ED8983'),
+    ]
+    for key_server_and_key_id in operator_sdk_keys:
+        gpg.recv_keys(*key_server_and_key_id)
 
     version = lastversion('operator-framework/operator-sdk')
     # lastversion sets handlers on the root logger because it's mean.
