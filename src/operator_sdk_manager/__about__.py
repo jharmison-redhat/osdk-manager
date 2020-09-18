@@ -19,7 +19,7 @@ __name__        = __title__
 __summary__     = ("A script for managing Operator SDK binaries and "
                    "installations")
 __uri__         = "https://git.jharmison.com/jharmison/operator-sdk-manager"
-__version__     = "0.1.7"
+__version__     = "0.1.8"
 __release__     = ""
 __status__      = "Development"
 __author__      = "James Harmison"

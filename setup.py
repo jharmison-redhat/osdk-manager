@@ -13,11 +13,14 @@ with open(os.path.join(base_dir, "src", "operator_sdk_manager",
           encoding='utf-8') as f:
     exec(f.read(), about)
 
-if os.path.isfile(os.path.join(base_dir, 'README.rst')):
-    with open(os.path.join(base_dir, 'README.rst'), encoding='utf-8') as f:
+if os.path.isfile(os.path.join(base_dir, 'README.md')):
+    with open(os.path.join(base_dir, 'README.md'), encoding='utf-8') as f:
         long_description = f.read()
 else:
-    long_description = ''
+    long_description = '''
+# {}
+
+{}'''.format(about['__name__'], about['__summary__'])
 
 
 def shell_run(command: str):
