@@ -11,7 +11,8 @@ from operator_sdk_manager.util import make_logger
 
 
 def operator_sdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
-                        path: str = os.path.expanduser('~/.local/bin')) -> str:
+                        path: str = os.path.expanduser('~/.local/bin'),
+                        version: str = 'latest') -> str:
     """
     Update the operator-sdk binary
     """
@@ -36,7 +37,9 @@ def operator_sdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
     for key_server_and_key_id in operator_sdk_keys:
         gpg.recv_keys(*key_server_and_key_id)
 
-    version = lastversion('operator-framework/operator-sdk')
+    if version == 'latest':
+        version = lastversion('operator-framework/operator-sdk')
+
     # lastversion sets handlers on the root logger because it's mean.
     root_logger = logging.getLogger()
     root_logger.handlers.clear()

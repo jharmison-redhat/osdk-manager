@@ -35,15 +35,19 @@ click.option = partial(click.option, show_default=True)
               help='The directory into which to unpack the operator-sdk')
 @click.option('-p', '--path', default=os.path.expanduser('~/.local/bin'),
               help='The directory in your $PATH to symlink operator-sdk into')
-def update(verbose, directory, path):
+@click.option('-V', '--version', default='latest',
+              help='The version of the Operator SDK to install')
+def update(verbose, directory, path, version):
     """Updates the operator-sdk binary, validating sums"""
     logger = make_logger(verbose)
     logger.debug(f'verbose: {verbose}')
     logger.debug(f'directory: {directory}')
     logger.debug(f'path: {path}')
+    logger.debug(f'version: {version}')
 
     from operator_sdk_manager.update import operator_sdk_update
-    version = operator_sdk_update(directory=directory, path=path)
+    version = operator_sdk_update(directory=directory, path=path,
+                                  version=version)
 
     if path in os.getenv('PATH').split(':'):
         print((f'operator-sdk version {version} is in your path as '
