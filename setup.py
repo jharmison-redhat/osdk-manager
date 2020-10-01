@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 base_dir = os.path.abspath(os.path.dirname(__file__))
 
 about = {}
-with open(os.path.join(base_dir, "src", "operator_sdk_manager",
+with open(os.path.join(base_dir, "src", "osdk_manager",
                        "__about__.py"),
           encoding='utf-8') as f:
     exec(f.read(), about)
@@ -81,7 +81,8 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'operator-sdk-manager=operator_sdk_manager.main:main',
+            'osdk-manager=osdk_manager.cli:cli',
+            'operator-sdk-manager=osdk_manager.cli:cli',
         ],
     },
 )
