@@ -1,0 +1,16 @@
+---
+dist: bionic
+language: python
+services:
+- docker
+script:
+- docker build -t osdk-manager-deploy
+deploy:
+- provider: script
+  script: docker run --rm -it -e TWINE_PASSWORD=$TESTPYPI_TOKEN osdk-manager-deploy
+  on:
+    branch: develop
+- provider: script
+  script: docker run --rm -it -e TWINE_PASSWORD=$PYPI_TOKEN -e TWINE_REPOSITORY=pypi osdk-manager-deploy
+  on:
+    branch: main
