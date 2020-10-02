@@ -58,7 +58,7 @@ def osdk_version(directory: str = os.path.expanduser('~/.operator-sdk'),
     for download in osdk_downloads:
         paths = OsdkPaths(download=download, version=assumed_version,
                           directory=directory, path=path)
-        if not os.path.readlink(paths.dst) == paths.src:
+        if not os.readlink(paths.dst) == paths.src:
             logger.info(f'{download} not symlinked into {path}.')
             return ''
 
