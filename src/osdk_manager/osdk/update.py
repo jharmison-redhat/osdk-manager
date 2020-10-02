@@ -59,8 +59,15 @@ def osdk_version(directory: str = os.path.expanduser('~/.operator-sdk'),
     for download in osdk_downloads:
         paths = OsdkPaths(download=download, version=assumed_version,
                           directory=directory, path=path)
-        if not os.readlink(paths.dst) == paths.src:
-            logger.info(f'{download} not symlinked into {path}.')
+        try:
+            if not os.readlink(paths.dst) == paths.src:
+                logger.info(f'{download} not symlinked into {path}.')
+                return ''
+            if not os.path.isfile(paths.src):
+                logger.info(f'{paths.dst} is a dangling link to {paths.src}')
+                return ''
+        except FileNotFoundError:
+            logger.info(f'{paths.dst} link does not exist')
             return ''
 
     return assumed_version

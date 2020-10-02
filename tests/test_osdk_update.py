@@ -40,7 +40,7 @@ def test_update(installed_osdk):
 
 @pytest.mark.parametrize("installed_osdk", ["1.0.0", "1.0.0"],  # noqa: PT014
                          indirect=True)
-def test_broken_update(installed_osdk):
+def test_broken_link_update(installed_osdk):
     """Test updates with broken successive installations."""
     link_path = "/tmp/operator-sdk"
     assert os.path.islink(link_path)
@@ -56,3 +56,23 @@ def test_broken_update(installed_osdk):
     ansible_operator_link_path = "/tmp/ansible-operator"
     if os.path.islink(ansible_operator_link_path):
         os.remove(ansible_operator_link_path)
+
+
+@pytest.mark.parametrize("installed_osdk", ["1.0.0", "1.0.0"],  # noqa: PT014
+                         indirect=True)
+def test_dangling_link_update(installed_osdk):
+    """Test updates with broken successive installations."""
+    link_path = "/tmp/operator-sdk"
+    assert os.path.islink(link_path)
+
+    link_inode = os.stat(link_path)
+    bin_path = "/tmp/operator-sdk-v{}-x86_64-linux-gnu".format(
+        installed_osdk
+    )
+    bin_inode = os.stat(bin_path)
+    assert link_inode == bin_inode
+
+    # Partially unlink the installation to test ability to reapply
+    ansible_operator_link_path = "/tmp/ansible-operator"
+    if os.path.islink(ansible_operator_link_path):
+        os.remove(os.readlink(ansible_operator_link_path))
