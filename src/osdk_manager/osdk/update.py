@@ -19,6 +19,50 @@ from lastversion.lastversion import latest as lastversion
 from osdk_manager.util import make_logger
 
 _called_from_test = False
+osdk_downloads = ['operator-sdk', 'ansible-operator', 'helm-operator']
+
+
+class OsdkPaths(object):
+    """A basic class to build paths for osdk updates."""
+    def __init__(self, download: str = None, version: str = None,
+                 arch: str = 'x86_64-linux-gnu',
+                 directory: str = os.path.expanduser('~/.operator-sdk'),
+                 path: str = os.path.expanduser('~/.local/bin')) -> None:
+        """Initialize a simple tracker for OSDK-related paths."""
+        download_base_url = (f'https://github.com/operator-framework/'
+                             f'operator-sdk/releases/download/v{version}')
+        self.filename = f'{download}-v{version}-{arch}'
+        self.download_url = f'{download_base_url}/{self.filename}'
+        self.signature_url = f'{self.download_url}.asc'
+        self.src = f'{directory}/{self.filename}'
+        self.dst = f'{path}/{download}'
+
+
+def osdk_version(directory: str = os.path.expanduser('~/.operator-sdk'),
+                 path: str = os.path.expanduser('~/.local/bin')) -> str:
+    """Return the version of the installed operator-sdk binaries."""
+    logger = make_logger()
+    for arg in [directory, path]:
+        logger.debug(type(arg))
+        logger.debug(arg)
+
+    link_path = os.path.join(path, 'operator-sdk')
+    if os.path.islink(link_path):
+        target = os.readlink(link_path)
+        binary = os.path.basename(target)
+        assumed_version = binary.split('-')[2].strip('v')
+    else:
+        logger.info('Unable to identify operator-sdk symlink.')
+        return ''
+
+    for download in osdk_downloads:
+        paths = OsdkPaths(download=download, version=assumed_version,
+                          directory=directory, path=path)
+        if not os.path.readlink(paths.dst) == paths.src:
+            logger.info(f'{download} not symlinked into {path}.')
+            return ''
+
+    return assumed_version
 
 
 def osdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
@@ -69,66 +113,61 @@ def osdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
                             'Consider specifying it with the --version '
                             'option at the command line.'))
 
-    logger.info(f'Identified installation version as {version}')
+    logger.info(f'Identified desired installation version as {version}')
+    installed_version = osdk_version(directory=directory, path=path)
 
-    downloads = ['operator-sdk', 'ansible-operator', 'helm-operator']
-    download_base_url = (f'https://github.com/operator-framework/operator-sdk/'
-                         f'releases/download/v{version}')
-    arch = 'x86_64-linux-gnu'
+    if version == installed_version:
+        logger.info(f'{version} is already installed.')
+        return version
 
-    for download in downloads:
-        filename = f'{download}-v{version}-{arch}'
-        download_url = f'{download_base_url}/{filename}'
-        signature_url = f'{download_url}.asc'
-        src = f'{directory}/{filename}'
-        dst = f'{path}/{download}'
-
-        if os.path.isfile(src):
-            logger.debug(f'Already downloaded: {filename}')
+    for download in osdk_downloads:
+        paths = OsdkPaths(download=download, version=version,
+                          directory=directory, path=path)
+        if os.path.isfile(paths.src):
+            logger.debug(f'Already downloaded: {paths.filename}')
         else:
             binary_fd, binary_path = tempfile.mkstemp()
-            logger.debug(f'Requesting {download_url}')
-            binary = requests.get(download_url).content
-            logger.debug(f'Saving {download_url}')
+            logger.debug(f'Requesting {paths.download_url}')
+            binary = requests.get(paths.download_url).content
+            logger.debug(f'Saving {paths.download_url}')
             with os.fdopen(binary_fd, 'wb') as f:
                 f.write(binary)
 
             binary_sha256 = hashlib.sha256(binary).hexdigest()
-            logger.debug(f'Saved {dst} with SHA 256 {binary_sha256}')
+            logger.debug(f'Saved {paths.dst} with SHA 256 {binary_sha256}')
             if validate_signatures:
-                signature = io.BytesIO(requests.get(signature_url).content)
+                signature = io.BytesIO(
+                    requests.get(paths.signature_url).content
+                )
 
-                logger.debug((f'Validating {download_url} with signature from '
-                              f'{signature_url}'))
+                logger.debug((f'Validating {paths.download_url} with signature'
+                              f' from {paths.signature_url}'))
 
                 if gpg.verify_file(signature, binary_path):
-                    logger.debug(f'{filename} passed GPG verification')
+                    logger.debug(f'{paths.filename} passed GPG verification')
                 else:  # pragma: no cover
-                    logger.error(f'{filename} failed verification!')
-                    raise RuntimeError(f'{filename} failed verification!')
+                    raise RuntimeError(f'{paths.filename} failed verification')
 
-            logger.info(f'Saving {filename} to {src}')
-            with open(src, 'wb') as f:
+            logger.info(f'Saving {paths.filename} to {paths.src}')
+            with open(paths.src, 'wb') as f:
                 f.write(binary)
             os.remove(binary_path)
 
-        src_mode = os.stat(src).st_mode
+        src_mode = os.stat(paths.src).st_mode
         src_mode_ex = src_mode | 0o111
         if src_mode != src_mode_ex:
-            logger.info(f'Making {src} executable.')
-            os.chmod(src, src_mode_ex & 0o7777)
+            logger.info(f'Making {paths.src} executable.')
+            os.chmod(paths.src, src_mode_ex & 0o7777)
 
-        if os.path.islink(dst):
-            symlink_inode = os.stat(dst)
-            download_inode = os.stat(src)
-            if download_inode == symlink_inode:
-                logger.debug(f'Already linked {src} to {dst}')
+        if os.path.islink(paths.dst):
+            if os.readlink(paths.dst) == paths.src:
+                logger.debug(f'Already linked {paths.src} to {paths.dst}')
             else:
-                logger.info(f'Updating symlink from {src} to {dst}')
-                os.remove(dst)
-                os.symlink(src, dst)
+                logger.info(f'Symlinking {paths.src} to {paths.dst}')
+                os.remove(paths.dst)
+                os.symlink(paths.src, paths.dst)
         else:
-            logger.info(f'Symlinking {src} to {dst}')
-            os.symlink(src, dst)
+            logger.info(f'Symlinking {paths.src} to {paths.dst}')
+            os.symlink(paths.src, paths.dst)
 
     return str(version)

@@ -16,7 +16,15 @@ from osdk_manager.cli.util import verbose_opt
 from osdk_manager.util import make_logger
 
 
-@cli.command()
+@cli.group()
+@verbose_opt
+def osdk(verbose):
+    """Manage the operator-sdk installation."""
+    logger = make_logger(verbose)
+    logger.debug(f'verbose: {verbose}')
+
+
+@osdk.command()
 @verbose_opt
 @click.option('-d', '--directory',
               default=os.path.expanduser('~/.operator-sdk'),
@@ -42,3 +50,21 @@ def update(verbose, directory, path, version):
     else:
         click.echo((f'operator-sdk version {version} is available at '
                     f'{path}/operator-sdk'))
+
+
+@osdk.command()
+@verbose_opt
+@click.option('-d', '--directory',
+              default=os.path.expanduser('~/.operator-sdk'),
+              help='The directory in which to look for the operator-sdk')
+@click.option('-p', '--path', default=os.path.expanduser('~/.local/bin'),
+              help=('The directory in which to look for the operator-sdk '
+                    'symlink'))
+def version(verbose, directory, path):
+    """Print the version of the installed operator-sdk binary"""
+    logger = make_logger(verbose)
+    logger.debug(f'verbose: {verbose}')
+    logger.debug(f'directory: {directory}')
+    logger.debug(f'path: {path}')
+    from osdk_manager.osdk.update import osdk_version
+    click.echo(osdk_version(directory=directory, path=path))
