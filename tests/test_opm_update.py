@@ -8,3 +8,5 @@ This test set validates that an update correctly installs and validates the
 latest version of opm, the Operator Package Manager, but can also be used to
 pin a version.
 """
+
+import osdk_manager.opm.update  # noqa: F401
