@@ -29,4 +29,5 @@ def cli(verbose):
     logger.debug(f'verbose: {verbose}')
 
 
-from osdk_manager.cli.osdk import update  # noqa E402,F401
+import osdk_manager.cli.osdk  # noqa E402
+import osdk_manager.cli.opm  # noqa E402
