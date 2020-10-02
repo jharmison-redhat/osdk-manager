@@ -11,11 +11,11 @@ import gnupg
 import io
 import logging
 import os
-import os.path
 import requests
 import tempfile
 import hashlib
 from lastversion.lastversion import latest as lastversion
+
 from osdk_manager.util import make_logger
 
 _called_from_test = False
