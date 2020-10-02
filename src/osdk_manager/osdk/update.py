@@ -37,7 +37,8 @@ class OsdkPaths(object):
         self.signature_url = f'{self.download_url}.asc'
         self.src = f'{directory}/{self.filename}'
         self.dst = f'{path}/{download}'
-
+        logger = make_logger()
+        logger.debug(self.__dict__)
 
 def osdk_version(directory: str = os.path.expanduser('~/.operator-sdk'),
                  path: str = os.path.expanduser('~/.local/bin')) -> str:
