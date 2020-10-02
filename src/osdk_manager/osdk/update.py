@@ -47,24 +47,28 @@ def osdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
     except FileExistsError:
         pass
 
-    gpg = gnupg.GPG(gnupghome=gnupghome)
-    operator_sdk_release_keys = [
-        ('keys.gnupg.net', '8018D6F1B58E194625E38581D16086E39AF46519'),
-        ('keys.gnupg.net', 'BF6F6F18846753754CBB1DDFBC9679ED89ED8983'),
-        ('keys.gnupg.net', '0CF50BEE7E4DF6445E08C0EA9AFDE59E90D2B445')
-    ]
-    for key_server, key_id in operator_sdk_release_keys:
-        logger.debug(f'Importing key {key_id} from {key_server}')
-        gpg.recv_keys(key_server, key_id)
+    try:
+        validate_signatures = True
+        gpg = gnupg.GPG(gnupghome=gnupghome)
+        operator_sdk_release_keys = [
+            ('keys.gnupg.net', '8018D6F1B58E194625E38581D16086E39AF46519'),
+            ('keys.gnupg.net', 'BF6F6F18846753754CBB1DDFBC9679ED89ED8983'),
+            ('keys.gnupg.net', '0CF50BEE7E4DF6445E08C0EA9AFDE59E90D2B445')
+        ]
+        for key_server, key_id in operator_sdk_release_keys:
+            logger.debug(f'Importing key {key_id} from {key_server}')
+            gpg.recv_keys(key_server, key_id)
+    except FileNotFoundError:
+        validate_signatures = False
+        logger.warning('Unable to validate signatures!')
 
     if version == 'latest':
         logger.debug('Determining latest version of the operator-sdk')
         version = lastversion('operator-framework/operator-sdk')
-
-    # lastversion sets handlers on the root logger because it's mean.
-    if not _called_from_test:  # pragma: no cover
-        root_logger = logging.getLogger()
-        root_logger.handlers.clear()
+        # lastversion sets handlers on the root logger because it's mean.
+        if not _called_from_test:  # pragma: no cover
+            root_logger = logging.getLogger()
+            root_logger.handlers.clear()
 
     if len(str(version)) < 1:  # pragma: no cover
         raise RuntimeError(('Unable to determine latest version. '
@@ -97,17 +101,17 @@ def osdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
 
             binary_sha256 = hashlib.sha256(binary).hexdigest()
             logger.debug(f'Saved {dst} with SHA 256 {binary_sha256}')
+            if validate_signatures:
+                signature = io.BytesIO(requests.get(signature_url).content)
 
-            signature = io.BytesIO(requests.get(signature_url).content)
+                logger.debug((f'Validating {download_url} with signature from '
+                              f'{signature_url}'))
 
-            logger.debug((f'Validating {download_url} with signature from '
-                          f'{signature_url}'))
-
-            if gpg.verify_file(signature, binary_path):
-                logger.debug(f'{filename} passed GPG verification')
-            else:  # pragma: no cover
-                logger.error(f'{filename} failed verification!')
-                raise RuntimeError(f'{filename} failed verification!')
+                if gpg.verify_file(signature, binary_path):
+                    logger.debug(f'{filename} passed GPG verification')
+                else:  # pragma: no cover
+                    logger.error(f'{filename} failed verification!')
+                    raise RuntimeError(f'{filename} failed verification!')
 
             logger.info(f'Saving {filename} to {src}')
             with open(src, 'wb') as f:
