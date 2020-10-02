@@ -26,21 +26,26 @@ def osdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
                 version: str = 'latest') -> str:
     """Update the operator-sdk binaries."""
     logger = make_logger()
-    lastversionrun = False
     for arg in [directory, path, version]:
         logger.debug(type(arg))
         logger.debug(arg)
 
     gnupghome = os.path.expanduser('~/.gnupg')
-    if not os.path.isdir(gnupghome):
+    try:
         logger.debug(f'Creating {gnupghome}')
         os.mkdir(gnupghome, mode=0o700)
-    if not os.path.isdir(directory):
+    except FileExistsError:
+        pass
+    try:
         logger.debug(f'Creating {directory}')
         os.mkdir(directory)
-    if not os.path.isdir(path):
+    except FileExistsError:
+        pass
+    try:
         logger.debug(f'Creating {path}')
         os.mkdir(path)
+    except FileExistsError:
+        pass
 
     gpg = gnupg.GPG(gnupghome=gnupghome)
     operator_sdk_release_keys = [
@@ -55,19 +60,18 @@ def osdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
     if version == 'latest':
         logger.debug('Determining latest version of the operator-sdk')
         version = lastversion('operator-framework/operator-sdk')
-        lastversionrun = True
 
     # lastversion sets handlers on the root logger because it's mean.
-    # But when testing, don't do this!
-    if not _called_from_test:
+    if not _called_from_test:  # pragma: no cover
         root_logger = logging.getLogger()
         root_logger.handlers.clear()
-    if len(str(version)) < 1:
+
+    if len(str(version)) < 1:  # pragma: no cover
         raise RuntimeError(('Unable to determine latest version. '
                             'Consider specifying it with the --version '
                             'option at the command line.'))
-    elif lastversionrun:
-        logger.info(f'Identified latest version as {version}')
+
+    logger.info(f'Identified installation version as {version}')
 
     downloads = ['operator-sdk', 'ansible-operator', 'helm-operator']
     download_base_url = (f'https://github.com/operator-framework/operator-sdk/'
@@ -101,7 +105,7 @@ def osdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
 
             if gpg.verify_file(signature, binary_path):
                 logger.debug(f'{filename} passed GPG verification')
-            else:
+            else:  # pragma: no cover
                 logger.error(f'{filename} failed verification!')
                 raise RuntimeError(f'{filename} failed verification!')
 

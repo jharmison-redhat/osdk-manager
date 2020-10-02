@@ -12,29 +12,25 @@ import os
 import os.path
 import osdk_manager.osdk.update as osdk_update
 import pytest
-import sys
 
 
 @pytest.fixture()
 def installed_osdk(request):
     """Update the Operator SDK and return the version."""
     osdk_update._called_from_test = True
-    python_version = "3.{}".format(sys.version_info.minor)
-    return osdk_update.osdk_update(directory="/tmp/{}".format(python_version),
-                                   path="/tmp/{}".format(python_version),
+    return osdk_update.osdk_update(directory="/tmp", path="/tmp",
                                    version=request.param)
 
 
-@pytest.mark.parametrize("installed_osdk", ["latest", "1.0.0"],
+@pytest.mark.parametrize("installed_osdk", ["latest", "1.0.0", "1.0.0"],  # noqa: PT014,E501
                          indirect=True)
 def test_update(installed_osdk):
     """Test updates with both unspecified version and a pinned version."""
-    link_path = "/tmp/3.{}/operator-sdk".format(sys.version_info.minor)
+    link_path = "/tmp/operator-sdk"
     assert os.path.islink(link_path)
 
     link_inode = os.stat(link_path)
-    bin_path = "/tmp/3.{}/operator-sdk-v{}-x86_64-linux-gnu".format(
-        sys.version_info.minor,
+    bin_path = "/tmp/operator-sdk-v{}-x86_64-linux-gnu".format(
         installed_osdk
     )
     bin_inode = os.stat(bin_path)
