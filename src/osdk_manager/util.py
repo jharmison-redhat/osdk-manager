@@ -35,7 +35,7 @@ def make_logger(verbosity: int = None):
             syslog.setLevel(logging.INFO)
             logger.addHandler(syslog)
     else:
-        if verbosity is not None:
+        if verbosity is not None and verbosity != 0:
             stderr = logger.handlers[0]
             stderr.setLevel(40 - (min(3, verbosity) * 10))
 
