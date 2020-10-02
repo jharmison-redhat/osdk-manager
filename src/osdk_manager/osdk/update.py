@@ -40,6 +40,7 @@ class OsdkPaths(object):
         logger = make_logger()
         logger.debug(self.__dict__)
 
+
 def osdk_version(directory: str = os.path.expanduser('~/.operator-sdk'),
                  path: str = os.path.expanduser('~/.local/bin')) -> str:
     """Return the version of the installed operator-sdk binaries."""

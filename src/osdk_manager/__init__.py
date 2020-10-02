@@ -7,5 +7,5 @@ version Operator SDK-based Kubernetes operators.
 
 import platform
 
-if platform.system() != "Linux":
+if platform.system() != "Linux":  # pragma: no cover
     raise EnvironmentError("osdk_manager is designed only for Linux.")
