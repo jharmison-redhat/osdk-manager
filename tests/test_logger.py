@@ -4,8 +4,8 @@
 Manager Operator SDK binary installation, and help to scaffold, release, and
 version Operator SDK-based Kubernetes operators.
 
-This test set validates that an update correctly installs and validates the
-latest version, but can also be used to pin a version.
+This test set validates that the logger works as expected for different
+conditions.
 """
 
 from osdk_manager.util import make_logger
