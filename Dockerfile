@@ -3,7 +3,7 @@ ARG TWINE_USERNAME=__token__
 ARG TWINE_PASSWORD=""
 ARG TWINE_REPOSITORY=testpypi
 
-RUN dnf -y install python36 python37 python38 python3-pip python3-tox && \
+RUN dnf -y install python36 python37 python38 python3-pip python3-tox gnupg2 && \
     dnf -y clean all && \
     rm -rf /var/cache/dnf
 
