@@ -31,21 +31,15 @@ def osdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
         logger.debug(arg)
 
     gnupghome = os.path.expanduser('~/.gnupg')
-    try:
-        logger.debug(f'Creating {gnupghome}')
-        os.mkdir(gnupghome, mode=0o700)
-    except FileExistsError:
-        pass
-    try:
-        logger.debug(f'Creating {directory}')
-        os.mkdir(directory)
-    except FileExistsError:
-        pass
-    try:
-        logger.debug(f'Creating {path}')
-        os.mkdir(path)
-    except FileExistsError:
-        pass
+
+    logger.debug(f'Creating {gnupghome}')
+    os.makedirs(gnupghome, mode=0o700, exist_ok=True)
+
+    logger.debug(f'Creating {directory}')
+    os.makedirs(directory, exist_ok=True)
+
+    logger.debug(f'Creating {path}')
+    os.makedirs(path, exist_ok=True)
 
     try:
         validate_signatures = True
