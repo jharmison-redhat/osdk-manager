@@ -52,7 +52,7 @@ def osdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
         for key_server, key_id in operator_sdk_release_keys:
             logger.debug(f'Importing key {key_id} from {key_server}')
             gpg.recv_keys(key_server, key_id)
-    except FileNotFoundError:
+    except FileNotFoundError:  # pragma: no cover
         validate_signatures = False
         logger.warning('Unable to validate signatures!')
 
