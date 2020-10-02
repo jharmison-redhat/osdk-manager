@@ -24,6 +24,7 @@ osdk_downloads = ['operator-sdk', 'ansible-operator', 'helm-operator']
 
 class OsdkPaths(object):
     """A basic class to build paths for osdk updates."""
+
     def __init__(self, download: str = None, version: str = None,
                  arch: str = 'x86_64-linux-gnu',
                  directory: str = os.path.expanduser('~/.operator-sdk'),

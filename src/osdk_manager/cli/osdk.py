@@ -61,7 +61,7 @@ def update(verbose, directory, path, version):
               help=('The directory in which to look for the operator-sdk '
                     'symlink'))
 def version(verbose, directory, path):
-    """Print the version of the installed operator-sdk binary"""
+    """Print the version of the installed operator-sdk binary."""
     logger = make_logger(verbose)
     logger.debug(f'verbose: {verbose}')
     logger.debug(f'directory: {directory}')
