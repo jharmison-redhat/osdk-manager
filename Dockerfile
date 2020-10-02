@@ -13,9 +13,5 @@ COPY src/osdk_manager       /app/src/osdk_manager
 COPY tests                  /app/tests
 WORKDIR                     /app
 
-ENV TWINE_USERNAME="$TWINE_USERNAME" \
-    TWINE_PASSWORD="$TWINE_PASSWORD" \
-    TWINE_REPOSITORY="$TWINE_REPOSITORY"
-
 RUN tox && \
     tox -e release
