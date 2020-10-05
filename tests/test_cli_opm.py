@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 """osdk-manager cli update tests.
 
-Manager Operator SDK binary installation, and help to scaffold, release, and
+Manage osdk and opm binary installation, and help to scaffold, release, and
 version Operator SDK-based Kubernetes operators.
 
 This test set validates that the CLI correctly reports information about
