@@ -19,3 +19,10 @@ __author__ = "James Harmison"
 __email__ = "jharmison@gmail.com"
 __license__ = "BSD-2-Clause"
 __copyright__ = "2020 %s" % __author__
+__requires__ = [
+    'requests',
+    'click',
+    'lastversion',
+    'python-gnupg',
+    'PyYAML'
+]
