@@ -11,16 +11,7 @@ pin a version.
 
 import os
 import os.path
-import osdk_manager.opm.update as opm_update
 import pytest
-
-
-@pytest.fixture()
-def installed_opm(request):
-    """Update the Operator Package Manager and return the version."""
-    opm_update._called_from_test = True
-    return opm_update.opm_update(directory="/tmp", path="/tmp",
-                                 version=request.param)
 
 
 @pytest.mark.parametrize("installed_opm", ["latest", "1.14.2", "1.14.2"],  # noqa: PT014,E501

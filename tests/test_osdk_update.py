@@ -11,16 +11,7 @@ version.
 
 import os
 import os.path
-import osdk_manager.osdk.update as osdk_update
 import pytest
-
-
-@pytest.fixture()
-def installed_osdk(request):
-    """Update the Operator SDK and return the version."""
-    osdk_update._called_from_test = True
-    return osdk_update.osdk_update(directory="/tmp", path="/tmp",
-                                   version=request.param)
 
 
 @pytest.mark.parametrize("installed_osdk", ["latest", "1.0.0", "1.0.0"],  # noqa: PT014,E501
