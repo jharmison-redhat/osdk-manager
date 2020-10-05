@@ -12,7 +12,7 @@ import logging
 import logging.handlers
 
 
-def make_logger(verbosity: int = None):
+def get_logger(verbosity: int = None):
     """Create a logger, or return an existing one with specified verbosity."""
     logger = logging.getLogger('osdk-manager')
     logger.setLevel(logging.DEBUG)

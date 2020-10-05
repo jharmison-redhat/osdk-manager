@@ -13,14 +13,14 @@ import os
 
 from osdk_manager.cli import cli
 from osdk_manager.cli.util import verbose_opt
-from osdk_manager.util import make_logger
+from osdk_manager.util import get_logger
 
 
 @cli.group()
 @verbose_opt
 def opm(verbose):
     """Manage the opm installation."""
-    logger = make_logger(verbose)
+    logger = get_logger(verbose)
     logger.debug(f'verbose: {verbose}')
 
 
@@ -35,7 +35,7 @@ def opm(verbose):
               help='The version of the Operator Package Manager to install')
 def update(verbose, directory, path, version):
     """Update the opm binary, validating sums."""
-    logger = make_logger(verbose)
+    logger = get_logger(verbose)
     logger.debug(f'verbose: {verbose}')
     logger.debug(f'directory: {directory}')
     logger.debug(f'path: {path}')
@@ -59,7 +59,7 @@ def update(verbose, directory, path, version):
               help='The directory in which to look for the opm symlink')
 def version(verbose, directory, path):
     """Print the version of the installed opm binary."""
-    logger = make_logger(verbose)
+    logger = get_logger(verbose)
     logger.debug(f'verbose: {verbose}')
     logger.debug(f'directory: {directory}')
     logger.debug(f'path: {path}')

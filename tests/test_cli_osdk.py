@@ -12,7 +12,7 @@ import os
 import shlex
 from click.testing import CliRunner
 from osdk_manager.cli import cli
-from osdk_manager.util import make_logger
+from osdk_manager.util import get_logger
 import osdk_manager.osdk.update as osdk_update
 
 osdk_update._called_from_test = True
@@ -46,7 +46,7 @@ def test_osdk_update_verbosity():
     """Test the osdk-manager update command verbosity flag."""
     runner = CliRunner()
     args = shlex.split('osdk update --directory=/tmp --path=/tmp -vvv')
-    logger = make_logger()
+    logger = get_logger()
     logger.handlers.clear()
 
     result = runner.invoke(cli, args)
@@ -58,7 +58,7 @@ def test_osdk_verbosity_update():
     """Test the osdk-manager verbosity with an update afterwards."""
     runner = CliRunner()
     args = shlex.split('-vvv osdk update --directory=/tmp --path=/tmp')
-    logger = make_logger()
+    logger = get_logger()
     logger.handlers.clear()
 
     result = runner.invoke(cli, args)

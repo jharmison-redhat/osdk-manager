@@ -10,10 +10,10 @@ This file contains the main CLI interfaces, based on Click.
 import click
 import sys
 
-from osdk_manager.util import make_logger
+from osdk_manager.util import get_logger
 from .util import verbose_opt
 
-logger = make_logger()
+logger = get_logger()
 
 
 @click.group()
@@ -24,7 +24,7 @@ def cli(verbose):
 
     Manage the operator-sdk binary and associated dependencies.
     """
-    logger = make_logger(verbose)
+    logger = get_logger(verbose)
     logger.debug(sys.argv)
     logger.debug(f'verbose: {verbose}')
 

@@ -14,7 +14,7 @@ import os
 import requests
 from lastversion.lastversion import latest as lastversion
 
-from osdk_manager.util import make_logger
+from osdk_manager.util import get_logger
 
 _called_from_test = False
 
@@ -32,14 +32,14 @@ class OpmPaths(object):
         self.download_url = f'{download_base_url}/{self.filename}'
         self.src = f'{directory}/{self.filename}-{version}'
         self.dst = f'{path}/opm'
-        logger = make_logger()
+        logger = get_logger()
         logger.debug(self.__dict__)
 
 
 def opm_version(directory: str = os.path.expanduser('~/.operator-sdk'),
                 path: str = os.path.expanduser('~/.local/bin')) -> str:
     """Return the version of the installed opm binary."""
-    logger = make_logger()
+    logger = get_logger()
     for arg in [directory, path]:
         logger.debug(type(arg))
         logger.debug(arg)
@@ -67,7 +67,7 @@ def opm_update(directory: str = os.path.expanduser('~/.operator-sdk'),
                path: str = os.path.expanduser('~/.local/bin'),
                version: str = 'latest') -> str:
     """Update the opm binary."""
-    logger = make_logger()
+    logger = get_logger()
     for arg in [directory, path, version]:
         logger.debug(type(arg))
         logger.debug(arg)

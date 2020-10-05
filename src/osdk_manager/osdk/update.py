@@ -16,7 +16,7 @@ import tempfile
 import hashlib
 from lastversion.lastversion import latest as lastversion
 
-from osdk_manager.util import make_logger
+from osdk_manager.util import get_logger
 
 _called_from_test = False
 osdk_downloads = ['operator-sdk', 'ansible-operator', 'helm-operator']
@@ -37,14 +37,14 @@ class OsdkPaths(object):
         self.signature_url = f'{self.download_url}.asc'
         self.src = f'{directory}/{self.filename}'
         self.dst = f'{path}/{download}'
-        logger = make_logger()
+        logger = get_logger()
         logger.debug(self.__dict__)
 
 
 def osdk_version(directory: str = os.path.expanduser('~/.operator-sdk'),
                  path: str = os.path.expanduser('~/.local/bin')) -> str:
     """Return the version of the installed operator-sdk binaries."""
-    logger = make_logger()
+    logger = get_logger()
     for arg in [directory, path]:
         logger.debug(type(arg))
         logger.debug(arg)
@@ -79,7 +79,7 @@ def osdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
                 path: str = os.path.expanduser('~/.local/bin'),
                 version: str = 'latest') -> str:
     """Update the operator-sdk binaries."""
-    logger = make_logger()
+    logger = get_logger()
     for arg in [directory, path, version]:
         logger.debug(type(arg))
         logger.debug(arg)
