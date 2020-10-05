@@ -75,3 +75,14 @@ def shell(cmd: str = None, fail: bool = True) -> Iterable[str]:
         exit(ret)
     elif ret != 0:
         logger.warning("Command returned {}: {}".format(ret, cmd))
+
+
+def determine_runtime() -> str:
+    """Determine the container runtime installed on the system."""
+    for line in shell("which docker", fail=False):
+        if line.endswith("/docker") and not os.path.islink(line):
+            return "docker"
+    for line in shell("which podman", fail=False):
+        if line.endswith("/podman") and not os.path.islink(line):
+            return "podman"
+    raise RuntimeError("Unable to identify a container runtime!")
