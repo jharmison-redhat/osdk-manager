@@ -51,7 +51,9 @@ def operator_settings_1():
         "api_version": "v1alpha1",
         "image": "pytest-operator",
         "version": "0.0.1",
-        "channels": "alpha",
+        "channels": [
+            "alpha"
+        ],
         "default_sample": "operators_v1alpha1_pytestresource.yaml",
     }
     return operator
