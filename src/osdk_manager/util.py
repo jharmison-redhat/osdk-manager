@@ -10,8 +10,10 @@ This file contains utilities utilized throughout the package and modules.
 import logging
 import logging.handlers
 import os
+import re
 import shlex
 import subprocess
+import sys
 from typing import List, Iterable
 
 from osdk_manager.exceptions import ContainerRuntimeException
@@ -71,12 +73,31 @@ def shell(cmd: str = None, fail: bool = True) -> Iterable[str]:
     ret = proc.wait()
     if fail and ret != 0:
         logger.error("Command errored: {}".format(cmd))
-        exit(ret)
+        sys.exit(ret)
     elif ret != 0:
         logger.warning("Command returned {}: {}".format(ret, cmd))
 
 
-def determine_runtime() -> str:
+def in_container() -> bool:  # pragma: no cover
+    """Test if we're running inside of a container."""
+    path = "/proc/self/cgroup"
+    if not os.path.isfile(path):
+        return False
+    with open(path) as f:
+        for line in f:
+            if re.match("\d+:[\w=]+:/docker(-[ce]e)?/\w+", line):  # noqa: W605
+                # We're in Docker!
+                return True
+    path = "/proc/self/mounts"
+    with open(path) as f:
+        for line in f:
+            if re.match("^fuse-overlayfs\s+/\s+", line):  # noqa: W605
+                # We're in Podman!
+                return True
+    return False
+
+
+def determine_runtime() -> str:  # pragma: no cover
     """Determine the container runtime installed on the system."""
     for line in shell("command -v docker", fail=False):
         if line.endswith("/docker") and not os.path.islink(line):

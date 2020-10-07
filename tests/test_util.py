@@ -1,14 +1,19 @@
 # SPDX-License-Identifier: BSD-2-Clause
-"""osdk-manager logger tests.
+"""osdk-manager shared utility tests.
 
 Manage osdk and opm binary installation, and help to scaffold, release, and
 version Operator SDK-based Kubernetes operators.
 
 This test set validates that the logger works as expected for different
-conditions.
+conditions, and that the other utility functions behave as expected
 """
 
-from osdk_manager.util import get_logger
+import pytest
+
+from osdk_manager.exceptions import ContainerRuntimeException
+from osdk_manager.util import (
+    get_logger, _utf8ify, shell, in_container, determine_runtime
+)
 
 
 def test_normal_logger():
@@ -55,3 +60,35 @@ def test_syslog_logger():
         logger = get_logger()
         logger.debug("Test message")
     logger.handlers.clear()
+
+
+def test_utf8ify():
+    """Test that UTF-8 decoding works as expected."""
+    teststr = b"This is a test string."
+    assert _utf8ify(teststr) == "This is a test string."
+
+
+def test_shell_fails():
+    """Test that the shell fails hard when it should."""
+    with pytest.raises(SystemExit):
+        [print(line) for line in shell("false")]
+
+
+def test_shell_soft_failure():
+    """Test that the shell doesn't fail when it shouldn't."""
+    [print(line) for line in shell("false", fail=False)]
+
+
+def test_shell_output():
+    """Test that the shell command yields lines as expected."""
+    lines = [line for line in shell("ls -1 /var")]
+    assert "log" in lines
+
+
+def test_determine_runtime():
+    """Test that we can determine the runtime."""
+    if in_container():
+        with pytest.raises(ContainerRuntimeException):
+            determine_runtime()
+    else:
+        determine_runtime()
