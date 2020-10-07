@@ -31,7 +31,8 @@ class Operator(object):
                  version: str = None, channels: List[str] = [],
                  kinds: List[str] = [], default_sample: str = None,
                  domain: str = None, group: str = None,
-                 api_version: str = None, initialized: bool = False) -> None:
+                 api_version: str = None, initialized: bool = False,
+                 runtime: str = determine_runtime()) -> None:
         """Initialize an Operator with the necessary variables."""
         self.directory = directory
         self.image = image
@@ -43,13 +44,13 @@ class Operator(object):
         self.group = group
         self.api_version = api_version
         self.initialized = initialized
-        self.runtime = determine_runtime()
+        self.runtime = runtime
 
     def __repr__(self) -> str:
         """Represent the state of this object as a string."""
         return ("Operator(directory={}, image={}, version={}, channels={},"
                 " kinds={}, default_sample={}, domain={}, group={},"
-                " api_version={}, initialized={})").format(
+                " api_version={}, initialized={}, runtime={})").format(
             self.directory,
             self.image,
             self.version,
@@ -59,7 +60,8 @@ class Operator(object):
             self.domain,
             self.group,
             self.api_version,
-            self.initialized
+            self.initialized,
+            self.runtime
         )
 
     @classmethod
