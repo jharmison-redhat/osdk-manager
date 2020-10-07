@@ -32,7 +32,7 @@ class Operator(object):
                  kinds: List[str] = [], default_sample: str = None,
                  domain: str = None, group: str = None,
                  api_version: str = None, initialized: bool = False,
-                 runtime: str = determine_runtime()) -> None:
+                 runtime: str = None) -> None:
         """Initialize an Operator with the necessary variables."""
         self.directory = directory
         self.image = image
@@ -44,7 +44,10 @@ class Operator(object):
         self.group = group
         self.api_version = api_version
         self.initialized = initialized
-        self.runtime = runtime
+        if runtime is not None:
+            self.runtime = runtime
+        else:
+            self.runtime = determine_runtime()
 
     def __repr__(self) -> str:
         """Represent the state of this object as a string."""
