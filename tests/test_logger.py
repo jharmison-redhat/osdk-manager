@@ -50,6 +50,7 @@ def test_syslog_logger():
             f.write("")
         logger = get_logger()
         logger.debug("Test message")
+        os.remove('/dev/log')
     else:
         logger = get_logger()
         logger.debug("Test message")
