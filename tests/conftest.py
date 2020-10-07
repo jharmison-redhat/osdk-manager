@@ -30,7 +30,7 @@ def installed_osdk(request):
 
 @pytest.fixture()
 def new_folder():
-    """Create a new temp folder, cleaning it up after the test"""
+    """Create a new temp folder, cleaning it up after the test."""
     import shutil
     import tempfile
 
@@ -41,7 +41,7 @@ def new_folder():
 
 @pytest.fixture()
 def operator_settings_1():
-    """Returns a dictionary of some basic operator settings"""
+    """Return a dictionary of some basic operator settings."""
     operator = {
         "domain": "io",
         "group": "operators",
