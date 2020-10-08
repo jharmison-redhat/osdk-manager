@@ -13,13 +13,18 @@ import pytest
 
 from osdk_manager.exceptions import ContainerRuntimeException
 from osdk_manager.operator import Operator
-from osdk_manager.util import in_container
+from .conftest import in_container
 
 
 def test_load_operator(operator_settings_file_1):
     """Test a basic load of an Operator from YAML."""
-    op = Operator.load(directory=os.path.dirname(operator_settings_file_1),
-                       filename=os.path.basename(operator_settings_file_1))
+    if in_container():
+        op = Operator.load(directory=os.path.dirname(operator_settings_file_1),
+                           filename=os.path.basename(operator_settings_file_1),
+                           runtime="fake")
+    else:
+        op = Operator.load(directory=os.path.dirname(operator_settings_file_1),
+                           filename=os.path.basename(operator_settings_file_1))
     assert str(op).startswith('Operator(')
 
 

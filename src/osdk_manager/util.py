@@ -10,7 +10,6 @@ This file contains utilities utilized throughout the package and modules.
 import logging
 import logging.handlers
 import os
-import re
 import shlex
 import subprocess
 from typing import List, Iterable
@@ -78,25 +77,6 @@ def shell(cmd: str = None, fail: bool = True) -> Iterable[str]:
         raise ShellRuntimeException(ret)
     elif ret != 0:
         logger.warning("Command returned {}: {}".format(ret, cmd))
-
-
-def in_container() -> bool:  # pragma: no cover
-    """Test if we're running inside of a container."""
-    path = "/proc/self/cgroup"
-    if not os.path.isfile(path):
-        return False
-    with open(path) as f:
-        for line in f:
-            if re.match("\d+:[\w=]+:/docker(-[ce]e)?/\w+", line):  # noqa: W605
-                # We're in Docker!
-                return True
-    path = "/proc/self/mounts"
-    with open(path) as f:
-        for line in f:
-            if re.match("^fuse-overlayfs\s+/\s+", line):  # noqa: W605
-                # We're in Podman!
-                return True
-    return False
 
 
 def determine_runtime() -> str:  # pragma: no cover
