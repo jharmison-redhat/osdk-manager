@@ -21,5 +21,6 @@ class ShellRuntimeException(RuntimeError):
         code -- the return code from the shell command
     """
 
-    def __init__(self, code):
+    def __init__(self, code: int = None):
+        """Save the code with the exception."""
         self.code = code
