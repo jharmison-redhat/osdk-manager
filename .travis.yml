@@ -4,7 +4,7 @@ language: python
 services:
 - docker
 script:
-- docker build -t osdk-manager-deploy
+- docker build . -t osdk-manager-deploy
 deploy:
 - provider: script
   script: docker run --rm -it -e TWINE_PASSWORD=$TESTPYPI_TOKEN osdk-manager-deploy
