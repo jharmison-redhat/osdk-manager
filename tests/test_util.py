@@ -10,7 +10,10 @@ conditions, and that the other utility functions behave as expected
 
 import pytest
 
-from osdk_manager.exceptions import ContainerRuntimeException
+from osdk_manager.exceptions import (
+    ContainerRuntimeException,
+    ShellRuntimeException
+)
 from osdk_manager.util import (
     get_logger, _utf8ify, shell, in_container, determine_runtime
 )
@@ -70,7 +73,7 @@ def test_utf8ify():
 
 def test_shell_fails():
     """Test that the shell fails hard when it should."""
-    with pytest.raises(SystemExit):
+    with pytest.raises(ShellRuntimeException):
         [print(line) for line in shell("false")]
 
 

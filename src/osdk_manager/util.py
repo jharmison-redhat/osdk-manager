@@ -13,10 +13,12 @@ import os
 import re
 import shlex
 import subprocess
-import sys
 from typing import List, Iterable
 
-from osdk_manager.exceptions import ContainerRuntimeException
+from osdk_manager.exceptions import (
+    ContainerRuntimeException,
+    ShellRuntimeException
+)
 
 
 def get_logger(verbosity: int = None):
@@ -73,7 +75,7 @@ def shell(cmd: str = None, fail: bool = True) -> Iterable[str]:
     ret = proc.wait()
     if fail and ret != 0:
         logger.error("Command errored: {}".format(cmd))
-        sys.exit(ret)
+        raise ShellRuntimeException(ret)
     elif ret != 0:
         logger.warning("Command returned {}: {}".format(ret, cmd))
 
