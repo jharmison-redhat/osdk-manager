@@ -1,8 +1,6 @@
 ---
 dist: bionic
 language: python
-services:
-- docker
 script:
 - tox
 deploy:
