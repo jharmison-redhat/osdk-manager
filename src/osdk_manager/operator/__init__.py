@@ -68,7 +68,8 @@ class Operator(object):
         )
 
     @classmethod
-    def load(cls, directory: str = '.', filename: str = "operate.yml") -> T:
+    def load(cls, directory: str = '.', filename: str = "operate.yml",
+             runtime: str = None) -> T:
         """Alternate constructor to load settings from a yaml file."""
         with open(os.path.join(directory, filename)) as f:
             settings = yaml.safe_load(f)
@@ -83,4 +84,5 @@ class Operator(object):
                    default_sample=settings.get("default-sample"),
                    domain=settings.get("domain"),
                    group=settings.get("group"),
-                   api_version=settings.get("api-version"))
+                   api_version=settings.get("api-version"),
+                   runtime=runtime)
