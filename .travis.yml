@@ -4,13 +4,13 @@ language: python
 services:
 - docker
 script:
-- docker build . -t osdk-manager-deploy
+- tox
 deploy:
 - provider: script
-  script: docker run --rm -it -e TWINE_PASSWORD=$TESTPYPI_TOKEN osdk-manager-deploy
+  script: TWINE_PASSWORD=$TESTPYPI_TOKEN tox -e release
   on:
     branch: develop
 - provider: script
-  script: docker run --rm -it -e TWINE_PASSWORD=$PYPI_TOKEN -e TWINE_REPOSITORY=pypi osdk-manager-deploy
+  script: TWINE_PASSWORD=$PYPI_TOKEN TWINE_REPOSITORY=pypi tox -e release
   on:
     branch: main
