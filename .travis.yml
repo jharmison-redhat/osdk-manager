@@ -11,10 +11,10 @@ script:
 - tox
 deploy:
 - provider: script
-  script: TWINE_PASSWORD=$TESTPYPI_TOKEN tox -e release
+  script: TWINE_PASSWORD=$TESTPYPI_TOKEN TWINE_REPOSITORY=testpypi tox -e release
   on:
     branch: develop
 - provider: script
-  script: TWINE_PASSWORD=$PYPI_TOKEN TWINE_REPOSITORY=pypi tox -e release
+  script: TWINE_PASSWORD=$PYPI_TOKEN tox -e release
   on:
     branch: main
