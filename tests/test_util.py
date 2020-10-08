@@ -14,9 +14,9 @@ from osdk_manager.exceptions import (
     ContainerRuntimeException,
     ShellRuntimeException
 )
-from osdk_manager.util import (
-    get_logger, _utf8ify, shell, in_container, determine_runtime
-)
+from osdk_manager.util import get_logger, _utf8ify, shell, determine_runtime
+
+from .conftest import in_container
 
 
 def test_normal_logger():
