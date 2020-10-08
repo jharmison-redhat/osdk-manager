@@ -81,10 +81,13 @@ def shell(cmd: str = None, fail: bool = True) -> Iterable[str]:
 
 def determine_runtime() -> str:  # pragma: no cover
     """Determine the container runtime installed on the system."""
-    for line in shell("command -v docker", fail=False):
-        if line.endswith("/docker") and not os.path.islink(line):
-            return "docker"
-    for line in shell("command -v podman", fail=False):
-        if line.endswith("/podman") and not os.path.islink(line):
-            return "podman"
-    raise ContainerRuntimeException
+    try:
+        [line for line in shell("docker --help", fail=False)]
+        return "docker"
+    except FileNotFoundError:
+        pass
+    try:
+        [line for line in shell("podman --help", fail=False)]
+        return "podman"
+    except FileNotFoundError:
+        raise ContainerRuntimeException

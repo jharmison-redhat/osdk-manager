@@ -31,6 +31,25 @@ def test_update(installed_osdk):
 
 @pytest.mark.parametrize("installed_osdk", ["1.0.0", "1.0.0"],  # noqa: PT014
                          indirect=True)
+def test_broken_osdk_update(installed_osdk):
+    """Test updates with successive installations missing the osdk link."""
+    link_path = "/tmp/operator-sdk"
+    assert os.path.islink(link_path)
+
+    link_inode = os.stat(link_path)
+    bin_path = "/tmp/operator-sdk-v{}-x86_64-linux-gnu".format(
+        installed_osdk
+    )
+    bin_inode = os.stat(bin_path)
+    assert link_inode == bin_inode
+
+    # Unlink the installation to test ability to reapply
+    if os.path.islink(link_path):
+        os.remove(link_path)
+
+
+@pytest.mark.parametrize("installed_osdk", ["1.0.0", "1.0.0"],  # noqa: PT014
+                         indirect=True)
 def test_broken_link_update(installed_osdk):
     """Test updates with successive installations missing a link."""
     link_path = "/tmp/operator-sdk"

@@ -9,3 +9,6 @@ venv
 *.log
 .tox
 .coverage
+coverage.xml
+htmlcov
+
