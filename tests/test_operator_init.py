@@ -34,3 +34,21 @@ def test_initialize(installed_osdk, new_folder, operator_settings_1):
     for key, value in operator_settings_1.items():
         if isinstance(value, str):
             assert value in str(op)
+
+    op.initialize_ansible_operator()
+    assert op.initialized
+
+    watches_file = os.path.join(new_folder, 'watches.yaml')
+    crd_files = [
+        os.path.join(new_folder, "config/crd/bases/{}.{}_{}s.yaml".format(
+            operator_settings_1["group"],
+            operator_settings_1["domain"],
+            kind.lower()
+        )) for kind in operator_settings_1["kinds"]
+    ]
+    assert os.path.isfile(watches_file)
+    for crd_file in crd_files:
+        assert os.path.isfile(crd_file)
+
+    op.initialize_ansible_operator()
+    assert op.initialized

@@ -12,7 +12,7 @@ import os
 import yaml
 from typing import TypeVar, List
 
-from osdk_manager.util import determine_runtime, get_logger
+from osdk_manager.util import determine_runtime, get_logger, shell
 
 
 T = TypeVar("Operator")
@@ -35,6 +35,7 @@ class Operator(object):
                  runtime: str = None) -> None:
         """Initialize an Operator with the necessary variables."""
         self.directory = directory
+        os.chdir(self.directory)
         self.image = image
         self.version = version
         self.channels = channels
@@ -86,3 +87,24 @@ class Operator(object):
                    group=settings.get("group"),
                    api_version=settings.get("api-version"),
                    runtime=runtime)
+
+    def initialize_ansible_operator(self) -> None:
+        """Initialize an Ansible Operator SDK operator.
+
+        Also creates APIs represented by the Kinds specified.
+        """
+        if self.initialized:
+            return
+
+        [line for line in shell(
+            "operator-sdk init --plugins=ansible --domain={}".format(
+                self.domain
+            )
+        )]
+        [[line for line in shell(
+            "operator-sdk create api --group={} --version={} --kind={}".format(
+                self.group, self.api_version, kind
+            )
+        )] for kind in self.kinds]
+
+        self.initialized = True
