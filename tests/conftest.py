@@ -28,6 +28,20 @@ settings_1 = {
     ],
     "default_sample": "operators_v1alpha1_pytestresource.yaml",
 }
+settings_2 = {
+    "domain": "io",
+    "group": "operators",
+    "kinds": [
+        "PytestResourceTwo"
+    ],
+    "api_version": "v1beta1",
+    "image": "quay.io/jharmison/pytest-operator-two",
+    "version": "0.0.1",
+    "channels": [
+        "alpha"
+    ],
+    "default_sample": "operators_v1beta1_pytestresourcetwo.yaml",
+}
 
 
 @pytest.fixture()
@@ -80,6 +94,21 @@ def operator_settings_1():
 def operator_settings_file_1():
     """Yield the path to a file with operator_settings_1 saved in it."""
     settings = {k.replace('_', '-'): v for k, v in settings_1.items()}
+    operator_file = operator_settings_file(settings)
+    yield operator_file
+    os.remove(operator_file)
+
+
+@pytest.fixture()
+def operator_settings_2():
+    """Return a dictionary of some basic operator settings."""
+    return settings_2
+
+
+@pytest.fixture()
+def operator_settings_file_2():
+    """Yield the path to a file with operator_settings_1 saved in it."""
+    settings = {k.replace('_', '-'): v for k, v in settings_2.items()}
     operator_file = operator_settings_file(settings)
     yield operator_file
     os.remove(operator_file)
