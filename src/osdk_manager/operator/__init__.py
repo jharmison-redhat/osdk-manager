@@ -36,8 +36,12 @@ class Operator(object):
         """Initialize an Operator with the necessary variables."""
         self.directory = directory
         os.chdir(self.directory)
-        self.image = image
+        if '/' in image:
+            self.image = image
+        else:
+            self.image = "localhost/{}".format(image)
         self.version = version
+        self.tag = version
         self.channels = channels
         self.kinds = kinds
         self.default_sample = default_sample
@@ -52,12 +56,14 @@ class Operator(object):
 
     def __repr__(self) -> str:
         """Represent the state of this object as a string."""
-        return ("Operator(directory={}, image={}, version={}, channels={},"
-                " kinds={}, default_sample={}, domain={}, group={},"
-                " api_version={}, initialized={}, runtime={})").format(
+        return ("Operator(directory={}, image={}, version={}, tag={},"
+                " channels={}, kinds={}, default_sample={}, domain={},"
+                " group={}, api_version={}, initialized={},"
+                " runtime={})").format(
             self.directory,
             self.image,
             self.version,
+            self.tag,
             self.channels,
             self.kinds,
             self.default_sample,
