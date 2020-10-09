@@ -51,7 +51,13 @@ def installed_osdk(request):
 @pytest.fixture()
 def new_folder():
     """Create a new temp folder, cleaning it up after the test."""
-    folder = tempfile.mkdtemp()
+    good_name = False
+    while not good_name:
+        folder = tempfile.mkdtemp()
+        if '_' in folder:
+            shutil.rmtree(folder)
+        else:
+            good_name = True
     yield folder
     shutil.rmtree(folder)
 
