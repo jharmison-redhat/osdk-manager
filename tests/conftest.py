@@ -87,13 +87,13 @@ def in_container() -> bool:
         return False
     with open(path) as f:
         for line in f:
-            if re.match("\d+:[\w=]+:/docker(-[ce]e)?/\w+", line):  # noqa: W605
+            if re.match(r'\d+:[\w=]+:/docker(-[ce]e)?/\w+', line):
                 # We're in Docker!
                 return True
     path = "/proc/self/mounts"
     with open(path) as f:
         for line in f:
-            if re.match("^fuse-overlayfs\s+/\s+", line):  # noqa: W605
+            if re.match(r'^fuse-overlayfs\s+/\s+', line):
                 # We're in Podman!
                 return True
     return False
