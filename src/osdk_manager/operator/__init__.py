@@ -114,3 +114,32 @@ class Operator(object):
         )] for kind in self.kinds]
 
         self.initialized = True
+
+    def _set_vars(self) -> None:
+        """Export appropriate variables into the environment for the SDK."""
+        os.environ["IMG"] = ':'.join([self.image, self.tag])
+        os.environ["BUNDLE_IMG"] = ':'.join([
+            self.image + "-operator", self.tag
+        ])
+        if len(self.channels) > 0:
+            os.environ["BUNDLE_CHANNELS"] = ','.join(self.channels)
+            os.environ["BUNDLE_DEFAULT_CHANNEL"] = self.channels[0]
+
+    def build(self) -> str:
+        """Build an operator image using the saved values.
+
+        Returns the image name and tag as a string.
+        """
+        self._set_vars()
+        [line for line in shell("{} build . -t {}".format(self.runtime,
+                                                          os.getenv("IMG")))]
+        return os.getenv("IMG")
+
+    def get_images(self) -> List[str]:
+        """Return a list of all images related to this operator."""
+        ret = []
+        for line in shell(self.runtime +
+                          " images --format='{{.Repository}}:{{.Tag}}'"):
+            if line.startswith(self.image):
+                ret.append(line.strip())
+        return ret
