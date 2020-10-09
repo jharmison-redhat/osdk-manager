@@ -16,8 +16,6 @@ from osdk_manager.exceptions import (
 )
 from osdk_manager.util import get_logger, _utf8ify, shell, determine_runtime
 
-from .conftest import in_container
-
 
 def test_normal_logger():
     """Test that a normal logger works as expected."""
@@ -90,8 +88,8 @@ def test_shell_output():
 
 def test_determine_runtime():
     """Test that we can determine the runtime."""
-    if in_container():
-        with pytest.raises(ContainerRuntimeException):
-            determine_runtime()
-    else:
-        determine_runtime()
+    runtime = determine_runtime()
+    try:
+        assert "docker" in runtime or "podman" in runtime
+    except ContainerRuntimeException:
+        pass

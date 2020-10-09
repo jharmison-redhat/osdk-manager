@@ -9,7 +9,6 @@ This file contains common fixtures used by tests for osdk-manager.
 
 import os
 import pytest
-import re
 import shutil
 import tempfile
 import yaml
@@ -52,7 +51,13 @@ def installed_osdk(request):
 @pytest.fixture()
 def new_folder():
     """Create a new temp folder, cleaning it up after the test."""
-    folder = tempfile.mkdtemp()
+    good_name = False
+    while not good_name:
+        folder = tempfile.mkdtemp()
+        if '_' in folder:
+            shutil.rmtree(folder)
+        else:
+            good_name = True
     yield folder
     shutil.rmtree(folder)
 
@@ -78,22 +83,3 @@ def operator_settings_file_1():
     operator_file = operator_settings_file(settings)
     yield operator_file
     os.remove(operator_file)
-
-
-def in_container() -> bool:
-    """Test if we're running inside of a container."""
-    path = "/proc/self/cgroup"
-    if not os.path.isfile(path):
-        return False
-    with open(path) as f:
-        for line in f:
-            if re.match("\d+:[\w=]+:/docker(-[ce]e)?/\w+", line):  # noqa: W605
-                # We're in Docker!
-                return True
-    path = "/proc/self/mounts"
-    with open(path) as f:
-        for line in f:
-            if re.match("^fuse-overlayfs\s+/\s+", line):  # noqa: W605
-                # We're in Podman!
-                return True
-    return False
