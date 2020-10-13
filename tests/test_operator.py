@@ -8,11 +8,15 @@ This test set validates that operator object can properly scaffold, build, and
 bundle operators from a settings definition or file.
 """
 
+import json
 import os
 import pytest
 
+from functools import partial
+
 from osdk_manager.exceptions import ContainerRuntimeException
 from osdk_manager.operator import Operator
+from osdk_manager.util import shell
 
 
 def test_load_operator(operator_settings_file_1):
@@ -92,3 +96,38 @@ def test_build_2(installed_osdk, new_folder, operator_settings_2):
     images = op.get_images()
     assert (expected_image in images or
             "localhost/{}".format(expected_image) in images)
+
+
+@pytest.mark.parametrize("installed_osdk", ["latest"], indirect=True)
+def test_deploy(installed_osdk, new_folder, operator_settings_1,
+                minikube_profile):
+    """Test building an initialized operator image."""
+    if minikube_profile is None:
+        pytest.skip("Unable to deploy without minikube instance.")
+
+    op = Operator(directory=new_folder, runtime="fake", **operator_settings_1)
+    try:
+        op = Operator(directory=new_folder, **operator_settings_1)
+    except ContainerRuntimeException:
+        pass
+
+    op.initialize_ansible_operator()
+    op.build()
+    op.deploy()
+
+    def name_matches(name, resource_list) -> bool:
+        for resource in resource_list:
+            if resource['metadata']['name'] == name:
+                return True
+        return False
+
+    name_matches_system = partial(name_matches, new_folder + '-system')
+    name_matches_controller_manager = partial(
+        name_matches, new_folder + '-controller-manager'
+    )
+    namespaces = json.loads('\n'.join(shell("kubectl get ns -o json")))
+    assert any(map(name_matches_system, namespaces))
+    deployments = json.loads('\n'.join(shell(
+        "kubectl get deployment -n {}-system".format(new_folder)
+    )))
+    assert any(map(name_matches_controller_manager, deployments))
