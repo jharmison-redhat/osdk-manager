@@ -13,6 +13,9 @@ import shutil
 import tempfile
 import yaml
 
+from osdk_manager.util import shell
+from osdk_manager.exceptions import ShellRuntimeException
+
 
 settings_1 = {
     "domain": "io",
@@ -112,3 +115,26 @@ def operator_settings_file_2():
     operator_file = operator_settings_file(settings)
     yield operator_file
     os.remove(operator_file)
+
+
+@pytest.fixture()
+def minikube_profile():
+    """Identify a running minikube instance and return its profile name.
+
+    Returns None if the minikube or kubectl binaries aren't in $PATH, or if the
+    cluster is not up and running."""
+
+    try:
+        ''.join(shell("which minikube"))
+    except ShellRuntimeException:
+        return None  # we need minikube
+    try:
+        ''.join(shell("which kubectl"))
+    except ShellRuntimeException:
+        return None  # we need kubectl
+    try:
+        ''.join(shell("minikube status"))
+    except ShellRuntimeException:
+        return None  # we need a running cluster
+
+    return ''.join(shell("minikube profile"))
