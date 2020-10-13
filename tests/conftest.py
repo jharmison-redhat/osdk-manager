@@ -122,8 +122,8 @@ def minikube_profile():
     """Identify a running minikube instance and return its profile name.
 
     Returns None if the minikube or kubectl binaries aren't in $PATH, or if the
-    cluster is not up and running."""
-
+    cluster is not up and running.
+    """
     try:
         ''.join(shell("which minikube"))
     except ShellRuntimeException:
