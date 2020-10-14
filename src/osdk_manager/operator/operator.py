@@ -125,6 +125,13 @@ class Operator(object):
             os.environ["BUNDLE_CHANNELS"] = ','.join(self.channels)
             os.environ["BUNDLE_DEFAULT_CHANNEL"] = self.channels[0]
 
+    def set_tag(self, tag: str = None) -> None:
+        """Set tag to the desired tag, or our version."""
+        if tag:
+            self.tag = tag
+        else:
+            self.tag = self.version
+
     def build(self) -> str:
         """Build an operator image using the saved values.
 
@@ -143,3 +150,8 @@ class Operator(object):
             if line.startswith(self.image):
                 ret.append(line.strip())
         return ret
+
+    def remove_images(self) -> None:
+        """Remove all identified images that belong to this operator."""
+        for image in self.get_images():
+            [line for line in shell(self.runtime + " rmi -f " + image)]

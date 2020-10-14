@@ -7,6 +7,7 @@ version Operator SDK-based Kubernetes operators.
 This file contains common fixtures used by tests for osdk-manager.
 """
 
+import logging
 import os
 import pytest
 import shutil
@@ -16,6 +17,8 @@ import yaml
 from osdk_manager.util import shell
 from osdk_manager.exceptions import ShellRuntimeException
 
+
+logger = logging.getLogger()
 
 settings_1 = {
     "domain": "io",
@@ -72,10 +75,13 @@ def new_folder():
     while not good_name:
         folder = tempfile.mkdtemp()
         if '_' in folder:
+            logger.debug("removing bad generated tmpdir")
             shutil.rmtree(folder)
         else:
+            logger.debug("good tmpdir")
             good_name = True
     yield folder
+    logger.debug("cleaning up tmpdir")
     shutil.rmtree(folder)
 
 
@@ -127,14 +133,18 @@ def minikube_profile():
     try:
         ''.join(shell("which minikube"))
     except ShellRuntimeException:
+        logger.warning("no minikube")
         return None  # we need minikube
     try:
         ''.join(shell("which kubectl"))
     except ShellRuntimeException:
+        logger.warning("no kubectl")
         return None  # we need kubectl
     try:
         ''.join(shell("minikube status"))
     except ShellRuntimeException:
+        logger.warning("no cluster up")
         return None  # we need a running cluster
 
+    logger.info("returning minikube profile")
     return ''.join(shell("minikube profile"))

@@ -88,14 +88,19 @@ def test_build_2(installed_osdk, new_folder, operator_settings_2):
         pass
 
     op.initialize_ansible_operator()
+    op.set_tag()
+    op.remove_images()
     image = op.build()
     expected_image = ":".join([operator_settings_2["image"],
                                operator_settings_2["version"]])
     assert expected_image in image
+    orig_images = op.get_images()
 
-    images = op.get_images()
-    assert (expected_image in images or
-            "localhost/{}".format(expected_image) in images)
+    op.set_tag("latest")
+    image = op.build()
+    expected_image = ':'.join([operator_settings_2["image"], "latest"])
+    assert expected_image in image
+    assert len(op.get_images()) > len(orig_images)
 
 
 @pytest.mark.parametrize("installed_osdk", ["latest"], indirect=True)
