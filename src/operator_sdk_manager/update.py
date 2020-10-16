@@ -33,7 +33,8 @@ def operator_sdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
     operator_sdk_keys = [
         ('keys.gnupg.net', '8018D6F1B58E194625E38581D16086E39AF46519'),
         ('keys.gnupg.net', 'BF6F6F18846753754CBB1DDFBC9679ED89ED8983'),
-        ('keys.gnupg.net', '0CF50BEE7E4DF6445E08C0EA9AFDE59E90D2B445')
+        ('keys.gnupg.net', '0CF50BEE7E4DF6445E08C0EA9AFDE59E90D2B445'),
+        ('keys.gnupg.net', 'B3956A23A74E7EB8733C5A1EEDC7A519E04837AD')
     ]
     for key_server_and_key_id in operator_sdk_keys:
         gpg.recv_keys(*key_server_and_key_id)
