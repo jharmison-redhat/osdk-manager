@@ -79,6 +79,20 @@ def test_build_1(installed_osdk, new_folder, operator_settings_1):
 
 
 @pytest.mark.parametrize("installed_osdk", ["latest"], indirect=True)
+def test_push(installed_osdk, new_folder, operator_settings_1):
+    """Test building an initialized operator image."""
+    op = Operator(directory=new_folder, runtime="fake", **operator_settings_1)
+    try:
+        op = Operator(directory=new_folder, **operator_settings_1)
+    except ContainerRuntimeException:
+        pass
+
+    op.initialize_ansible_operator()
+    op.build()
+    op.push()
+
+
+@pytest.mark.parametrize("installed_osdk", ["latest"], indirect=True)
 def test_build_2(installed_osdk, new_folder, operator_settings_2):
     """Test building a different initialized operator image."""
     op = Operator(directory=new_folder, runtime="fake", **operator_settings_2)
