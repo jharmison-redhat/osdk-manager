@@ -52,7 +52,12 @@ settings_2 = {
 
 @pytest.fixture()
 def installed_opm(request):
-    """Update the Operator Package Manager and return the version."""
+    """Update the Operator Package Manager and return the version.
+
+    The request.param is used to specify the version to request. If specified
+    as "latest", it will attempt to identify the latest version from the GitHub
+    API.
+    """
     import osdk_manager.opm.update as opm_update
     opm_update._called_from_test = True
     return opm_update.opm_update(directory="/tmp", path="/tmp",
@@ -60,8 +65,27 @@ def installed_opm(request):
 
 
 @pytest.fixture()
+def installed_unvalidated_osdk(request):
+    """Update the Operator SDK with an unvalidatable signature.
+
+    The request.param is used to determine whether to enforce verification or
+    not.
+    """
+    import osdk_manager.osdk.update as osdk_update
+    osdk_update._called_from_test = True
+    return osdk_update.osdk_update(directory="/tmp", path="/tmp",
+                                   version="1.0.0-alpha.2",
+                                   verify=request.param)
+
+
+@pytest.fixture()
 def installed_osdk(request):
-    """Update the Operator SDK and return the version."""
+    """Update the Operator SDK and return the version.
+
+    The request.param is used to specify the version to request. If specified
+    as "latest", it will attempt to identify the latest version from the GitHub
+    API.
+    """
     import osdk_manager.osdk.update as osdk_update
     osdk_update._called_from_test = True
     return osdk_update.osdk_update(directory="/tmp", path="/tmp",
