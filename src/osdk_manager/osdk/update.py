@@ -77,17 +77,12 @@ def osdk_version(directory: str = os.path.expanduser('~/.operator-sdk'),
 
 def osdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
                 path: str = os.path.expanduser('~/.local/bin'),
-                version: str = 'latest') -> str:
+                version: str = 'latest', verify: bool = True) -> str:
     """Update the operator-sdk binaries."""
     logger = get_logger()
     for arg in [directory, path, version]:
         logger.debug(type(arg))
         logger.debug(arg)
-
-    gnupghome = os.path.expanduser('~/.gnupg')
-
-    logger.debug(f'Creating {gnupghome}')
-    os.makedirs(gnupghome, mode=0o700, exist_ok=True)
 
     logger.debug(f'Creating {directory}')
     os.makedirs(directory, exist_ok=True)
@@ -95,21 +90,30 @@ def osdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
     logger.debug(f'Creating {path}')
     os.makedirs(path, exist_ok=True)
 
-    try:
-        validate_signatures = True
-        gpg = gnupg.GPG(gnupghome=gnupghome)
-        operator_sdk_release_keys = [
-            ('keys.gnupg.net', '8018D6F1B58E194625E38581D16086E39AF46519'),
-            ('keys.gnupg.net', 'BF6F6F18846753754CBB1DDFBC9679ED89ED8983'),
-            ('keys.gnupg.net', '0CF50BEE7E4DF6445E08C0EA9AFDE59E90D2B445'),
-            ('keys.gnupg.net', 'B3956A23A74E7EB8733C5A1EEDC7A519E04837AD')
-        ]
-        for key_server, key_id in operator_sdk_release_keys:
-            logger.debug(f'Importing key {key_id} from {key_server}')
-            gpg.recv_keys(key_server, key_id)
-    except FileNotFoundError:  # pragma: no cover
+    if verify:
+        gnupghome = os.path.expanduser('~/.gnupg')
+
+        logger.debug(f'Creating {gnupghome}')
+        os.makedirs(gnupghome, mode=0o700, exist_ok=True)
+
+        try:
+            validate_signatures = True
+            gpg = gnupg.GPG(gnupghome=gnupghome)
+            operator_sdk_release_keys = [
+                ('keys.gnupg.net', '8018D6F1B58E194625E38581D16086E39AF46519'),
+                ('keys.gnupg.net', 'BF6F6F18846753754CBB1DDFBC9679ED89ED8983'),
+                ('keys.gnupg.net', '0CF50BEE7E4DF6445E08C0EA9AFDE59E90D2B445'),
+                ('keys.gnupg.net', 'B3956A23A74E7EB8733C5A1EEDC7A519E04837AD')
+            ]
+            for key_server, key_id in operator_sdk_release_keys:
+                logger.debug(f'Importing key {key_id} from {key_server}')
+                gpg.recv_keys(key_server, key_id)
+        except FileNotFoundError:  # pragma: no cover
+            validate_signatures = False
+            logger.warning('Unable to validate signatures!')
+    else:
         validate_signatures = False
-        logger.warning('Unable to validate signatures!')
+        logger.warning('Not validating signatures as requested.')
 
     if version == 'latest':
         logger.debug('Determining latest version of the operator-sdk')
@@ -156,7 +160,7 @@ def osdk_update(directory: str = os.path.expanduser('~/.operator-sdk'),
 
                 if gpg.verify_file(signature, binary_path):
                     logger.debug(f'{paths.filename} passed GPG verification')
-                else:  # pragma: no cover
+                else:
                     raise RuntimeError(f'{paths.filename} failed verification')
 
             logger.info(f'Saving {paths.filename} to {paths.src}')

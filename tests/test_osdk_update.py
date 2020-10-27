@@ -14,6 +14,14 @@ import os.path
 import pytest
 
 
+@pytest.mark.parametrize("installed_unvalidated_osdk",
+                         [pytest.param(True, marks=pytest.mark.xfail), False],
+                         indirect=True)
+def test_osdk_validate(installed_unvalidated_osdk):
+    """Test validation of signatures on unverifiable releases of the osdk."""
+    assert installed_unvalidated_osdk is not None
+
+
 @pytest.mark.parametrize("installed_osdk", ["latest", "1.0.0", "1.0.0"],  # noqa: PT014,E501
                          indirect=True)
 def test_update(installed_osdk):
