@@ -27,7 +27,7 @@ settings_1 = {
         "PytestResource"
     ],
     "api_version": "v1alpha1",
-    "image": "pytest-operator",
+    "image": "harbor.jharmison.com/osdk-testing/pytest-operator",
     "version": "0.0.1",
     "channels": [
         "alpha"
@@ -51,6 +51,12 @@ settings_2 = {
 
 
 @pytest.fixture()
+def tmp_path():
+    """Return a simple dictionary for temporary directories."""
+    return {"directory": "/tmp", "path": "/tmp"}
+
+
+@pytest.fixture()
 def installed_opm(request):
     """Update the Operator Package Manager and return the version.
 
@@ -62,34 +68,6 @@ def installed_opm(request):
     opm_update._called_from_test = True
     return opm_update.opm_update(directory="/tmp", path="/tmp",
                                  version=request.param)
-
-
-@pytest.fixture()
-def installed_unvalidated_osdk(request):
-    """Update the Operator SDK with an unvalidatable signature.
-
-    The request.param is used to determine whether to enforce verification or
-    not.
-    """
-    import osdk_manager.osdk.update as osdk_update
-    osdk_update._called_from_test = True
-    return osdk_update.osdk_update(directory="/tmp", path="/tmp",
-                                   version="1.0.0-alpha.2",
-                                   verify=request.param)
-
-
-@pytest.fixture()
-def installed_osdk(request):
-    """Update the Operator SDK and return the version.
-
-    The request.param is used to specify the version to request. If specified
-    as "latest", it will attempt to identify the latest version from the GitHub
-    API.
-    """
-    import osdk_manager.osdk.update as osdk_update
-    osdk_update._called_from_test = True
-    return osdk_update.osdk_update(directory="/tmp", path="/tmp",
-                                   version=request.param)
 
 
 @pytest.fixture()
