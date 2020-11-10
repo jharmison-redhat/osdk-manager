@@ -132,6 +132,15 @@ class Operator(object):
         else:
             self.tag = self.version
 
+    def login(self, username: str = None, password: str = None) -> None:
+        """Log in to the repository for the current image.
+
+        Will raise an exception if unable to log in.
+        """
+        [line for line in shell("{} login -u {} -p {} {}".format(
+            self.runtime, username, password, self.image.split('/', 2)[0]
+        ))]
+
     def build(self) -> str:
         """Build an operator image using the saved values.
 
