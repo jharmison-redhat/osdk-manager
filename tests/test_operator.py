@@ -24,6 +24,7 @@ osdk_update._called_from_test = True
 osdk_update.osdk_update()
 
 
+@pytest.mark.skip(reason="Not finished.")
 def test_load_operator(operator_settings_file_1):
     """Test a basic load of an Operator from YAML."""
     op = Operator.load(directory=os.path.dirname(operator_settings_file_1),
@@ -31,6 +32,7 @@ def test_load_operator(operator_settings_file_1):
     assert str(op).startswith('Operator(')
 
 
+@pytest.mark.skip(reason="Not finished.")
 def test_initialize(new_folder, operator_settings_1):
     """Test initialization of an Operator scaffolding."""
     op = Operator(directory=new_folder, runtime="fake", **operator_settings_1)
@@ -62,6 +64,7 @@ def test_initialize(new_folder, operator_settings_1):
     assert op.initialized
 
 
+@pytest.mark.skip(reason="Not finished.")
 def test_build_1(new_folder, operator_settings_1):
     """Test building an initialized operator image."""
     op = Operator(directory=new_folder, runtime="fake", **operator_settings_1)
@@ -81,6 +84,7 @@ def test_build_1(new_folder, operator_settings_1):
             "localhost/{}".format(expected_image) in images)
 
 
+@pytest.mark.skip(reason="Not finished.")
 def test_push(new_folder, operator_settings_1):
     """Test building an initialized operator image."""
     op = Operator(directory=new_folder, runtime="fake", **operator_settings_1)
@@ -96,6 +100,7 @@ def test_push(new_folder, operator_settings_1):
     # op.push()
 
 
+@pytest.mark.skip(reason="Not finished.")
 def test_build_2(new_folder, operator_settings_2):
     """Test building a different initialized operator image."""
     op = Operator(directory=new_folder, runtime="fake", **operator_settings_2)
@@ -120,6 +125,7 @@ def test_build_2(new_folder, operator_settings_2):
     assert len(op.get_images()) > len(orig_images)
 
 
+@pytest.mark.skip(reason="Not finished.")
 def test_deploy(new_folder, operator_settings_1, minikube_profile):
     """Test building an initialized operator image."""
     if minikube_profile is None:
