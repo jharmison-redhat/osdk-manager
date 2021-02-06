@@ -25,6 +25,6 @@ deploy:
   on:
     branch: develop
 - provider: script
-  script: TWINE_PASSWORD=$PYPI_TOKEN tox -e release
+  script: TWINE_PASSWORD=$PYPI_TOKEN tox -e report,release
   on:
     branch: main
