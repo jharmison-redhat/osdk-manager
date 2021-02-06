@@ -11,9 +11,9 @@ This file contains some basic variables used for setup.
 __title__ = "osdk-manager"
 __name__ = __title__
 __summary__ = "A script for managing Operator SDK-based operators."
-__uri__ = "https://git.jharmison.com/jharmison/osdk-manager"
+__uri__ = "https://github.com/jharmison-redhat/osdk-manager"
 __version__ = "0.3.0"
-__release__ = ""
+__release__ = "1"
 __status__ = "Development"
 __author__ = "James Harmison"
 __email__ = "jharmison@gmail.com"
