@@ -1,12 +1,23 @@
 ---
 dist: bionic
 language: python
+services:
+- docker
 python:
 - "3.6"
 - "3.7"
 - "3.8"
 install:
 - pip install tox
+- mkdir -p ~/.local/bin
+- echo $PATH | grep -qF ~/.local/bin || export PATH=~/.local/bin:$PATH
+# TODO: Fix minikube
+# - curl -Lo ~/.local/bin/minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+# - chmod +x ~/.local/bin/minikube
+# - minikube config set driver docker
+# - curl -Lo ~/.local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v1.19.0/bin/linux/amd64/kubectl
+# - chmod +x ~/.local/bin/kubectl
+# - minikube start
 script:
 - tox
 deploy:
@@ -15,6 +26,6 @@ deploy:
   on:
     branch: develop
 - provider: script
-  script: TWINE_PASSWORD=$PYPI_TOKEN tox -e release
+  script: TWINE_PASSWORD=$PYPI_TOKEN tox -e report,release
   on:
     branch: main

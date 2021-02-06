@@ -10,100 +10,21 @@ version.
 """
 
 import os
-import os.path
-import pytest
+
+from osdk_manager.util import get_logger
+import osdk_manager.osdk.update as osdk_update
+osdk_update._called_from_test = True
 
 
-@pytest.mark.parametrize("installed_osdk", ["latest", "1.0.0", "1.0.0"],  # noqa: PT014,E501
-                         indirect=True)
-def test_update(installed_osdk):
-    """Test updates with both unspecified version and a pinned version."""
-    link_path = "/tmp/operator-sdk"
-    assert os.path.islink(link_path)
-
-    link_inode = os.stat(link_path)
-    bin_path = "/tmp/operator-sdk-v{}-x86_64-linux-gnu".format(
-        installed_osdk
-    )
-    bin_inode = os.stat(bin_path)
-    assert link_inode == bin_inode
-
-
-@pytest.mark.parametrize("installed_osdk", ["1.0.0", "1.0.0"],  # noqa: PT014
-                         indirect=True)
-def test_broken_osdk_update(installed_osdk):
-    """Test updates with successive installations missing the osdk link."""
-    link_path = "/tmp/operator-sdk"
-    assert os.path.islink(link_path)
-
-    link_inode = os.stat(link_path)
-    bin_path = "/tmp/operator-sdk-v{}-x86_64-linux-gnu".format(
-        installed_osdk
-    )
-    bin_inode = os.stat(bin_path)
-    assert link_inode == bin_inode
-
-    # Unlink the installation to test ability to reapply
-    if os.path.islink(link_path):
-        os.remove(link_path)
-
-
-@pytest.mark.parametrize("installed_osdk", ["1.0.0", "1.0.0"],  # noqa: PT014
-                         indirect=True)
-def test_broken_link_update(installed_osdk):
-    """Test updates with successive installations missing a link."""
-    link_path = "/tmp/operator-sdk"
-    assert os.path.islink(link_path)
-
-    link_inode = os.stat(link_path)
-    bin_path = "/tmp/operator-sdk-v{}-x86_64-linux-gnu".format(
-        installed_osdk
-    )
-    bin_inode = os.stat(bin_path)
-    assert link_inode == bin_inode
-
-    # Partially unlink the installation to test ability to reapply
-    ansible_operator_link_path = "/tmp/ansible-operator"
-    if os.path.islink(ansible_operator_link_path):
-        os.remove(ansible_operator_link_path)
-
-
-@pytest.mark.parametrize("installed_osdk", ["1.0.0", "1.0.0"],  # noqa: PT014
-                         indirect=True)
-def test_dangling_link_update(installed_osdk):
-    """Test updates with successive installations missing a binary."""
-    link_path = "/tmp/operator-sdk"
-    assert os.path.islink(link_path)
-
-    link_inode = os.stat(link_path)
-    bin_path = "/tmp/operator-sdk-v{}-x86_64-linux-gnu".format(
-        installed_osdk
-    )
-    bin_inode = os.stat(bin_path)
-    assert link_inode == bin_inode
-
-    # Partially break the installation binaries to test ability to reapply
-    ansible_operator_link_path = "/tmp/ansible-operator"
-    if os.path.islink(ansible_operator_link_path):
-        os.remove(os.readlink(ansible_operator_link_path))
-
-
-@pytest.mark.parametrize("installed_osdk", ["1.0.0", "1.0.0"],  # noqa: PT014
-                         indirect=True)
-def test_wrong_link_update(installed_osdk):
-    """Test updates with successive installations with the wrong link."""
-    link_path = "/tmp/operator-sdk"
-    assert os.path.islink(link_path)
-
-    link_inode = os.stat(link_path)
-    bin_path = "/tmp/operator-sdk-v{}-x86_64-linux-gnu".format(
-        installed_osdk
-    )
-    bin_inode = os.stat(bin_path)
-    assert link_inode == bin_inode
-
-    # Partially mislink the installation to test ability to reapply
-    ansible_operator_link_path = "/tmp/ansible-operator"
-    if os.path.islink(ansible_operator_link_path):
-        os.remove(ansible_operator_link_path)
-        os.symlink(bin_path, ansible_operator_link_path)
+def test_update(tmp_path):
+    """Test updates with both latest version and a pinned version."""
+    _ = get_logger(verbosity=4)
+    for osdk_version in ["latest", "1.3.1", "1.3.1"]:
+        version = osdk_update.osdk_update(version=osdk_version, **tmp_path)
+        file_data = osdk_update.OsdkFileData(version=version, **tmp_path)
+        assert file_data.files_not_matching() == []
+        for filename in file_data.downloads:
+            try:
+                os.remove(file_data.downloads[filename]['dst'])
+            except Exception:
+                pass
