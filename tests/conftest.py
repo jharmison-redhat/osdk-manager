@@ -53,7 +53,7 @@ settings_2 = {
 @pytest.fixture()
 def tmp_path():
     """Return a simple dictionary for temporary directories."""
-    return {"directory": "/tmp", "path": "/tmp"}
+    return {"path": "/tmp"}
 
 
 @pytest.fixture()

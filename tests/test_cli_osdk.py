@@ -21,7 +21,7 @@ osdk_update._called_from_test = True
 def test_osdk_update():
     """Test a basic invocation of osdk-manager update."""
     runner = CliRunner()
-    args = shlex.split('osdk update --directory=/tmp --path=/tmp')
+    args = shlex.split('osdk update --path=/tmp')
 
     result = runner.invoke(cli, args)
     assert result.exit_code == 0
@@ -33,19 +33,19 @@ def test_osdk_version_update():
     """Test a version-pinned invocation of osdk-manager update."""
     runner = CliRunner()
     args = shlex.split(
-        'osdk update --directory=/tmp --path=/tmp --version=1.0.0'
+        'osdk update --path=/tmp --version=1.3.1'
     )
 
     result = runner.invoke(cli, args)
     assert result.exit_code == 0
-    assert 'operator-sdk version 1.0.0 is available at /tmp/operator-sdk' in \
+    assert 'operator-sdk version 1.3.1 is available at /tmp/operator-sdk' in \
         result.output
 
 
 def test_osdk_update_verbosity():
     """Test the osdk-manager update command verbosity flag."""
     runner = CliRunner()
-    args = shlex.split('osdk update --directory=/tmp --path=/tmp -vvv')
+    args = shlex.split('osdk update --path=/tmp -vvv')
     logger = get_logger()
     logger.handlers.clear()
 
@@ -57,7 +57,7 @@ def test_osdk_update_verbosity():
 def test_osdk_verbosity_update():
     """Test the osdk-manager verbosity with an update afterwards."""
     runner = CliRunner()
-    args = shlex.split('-vvv osdk update --directory=/tmp --path=/tmp')
+    args = shlex.split('-vvv osdk update --path=/tmp')
     logger = get_logger()
     logger.handlers.clear()
 
@@ -72,16 +72,18 @@ def test_osdk_update_path():
     os.environ['PATH'] = ':'.join([os.path.expanduser('~/.local/bin'), PATH])
 
     runner = CliRunner()
-    args = shlex.split('osdk update --version=1.0.0')
+    args = shlex.split('osdk update --version=1.3.1')
     result = runner.invoke(cli, args)
 
     assert 'is in your path' in result.output
 
 
-def test_osdk_version():
-    """Test the osdk-manager osdk version command."""
+def test_osdk_no_validate():
+    """Test the osdk-manager update without verification of signatures."""
     runner = CliRunner()
-    args = shlex.split('osdk version')
-    result = runner.invoke(cli, args)
+    args = shlex.split('osdk update --path=/tmp --no-verify')
 
-    assert result.output.strip() == '1.0.0'
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0
+    assert 'operator-sdk version' in result.output
+    assert 'is available at /tmp/operator-sdk' in result.output

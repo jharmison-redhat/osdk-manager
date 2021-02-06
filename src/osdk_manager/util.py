@@ -7,11 +7,14 @@ version Operator SDK-based Kubernetes operators.
 This file contains utilities utilized throughout the package and modules.
 """
 
+import gnupg
 import logging
 import logging.handlers
 import os
 import shlex
 import subprocess
+from io import BytesIO
+from pathlib import Path
 from typing import List, Iterable
 
 from osdk_manager.exceptions import (
@@ -91,3 +94,40 @@ def determine_runtime() -> str:  # pragma: no cover
         return "podman"
     except FileNotFoundError:
         raise ContainerRuntimeException
+
+
+class GpgTrust(object):
+    """Handles GPG key trust and signature validation."""
+
+    def __init__(self, key_server: str = 'keys.gnupg.net') -> None:
+        """Initialize a GPG Trust database object."""
+        self.logger = get_logger()
+        self.gnupghome = os.path.expanduser('~/.gnupg')
+        self.key_server = key_server
+
+        self.logger.debug(f'Creating {self.gnupghome}')
+        os.makedirs(self.gnupghome, mode=0o700, exist_ok=True)
+
+        self.gpg = gnupg.GPG(gnupghome=self.gnupghome)
+
+    def trust(self, key_id: str = None) -> bool:
+        """Trust a GPG public key."""
+        try:
+            self.logger.debug(f'Importing key {key_id} from {self.key_server}')
+            self.gpg.recv_keys(self.key_server, key_id)
+        except FileNotFoundError:  # pragma: no cover
+            self.logger.error('Unable to receive keys!')
+            raise
+        return True
+
+    def verify(self, target: Path = None, signature: bytes = None) -> bool:
+        """Validate a signature using the trust database."""
+        self.logger.debug((f'Validating {target} signature'))
+
+        signature = BytesIO(signature)
+
+        if self.gpg.verify_file(signature, target):
+            self.logger.debug(f'{target} verified.')
+            return True
+        else:
+            raise RuntimeError(f'{target} failed verification.')
