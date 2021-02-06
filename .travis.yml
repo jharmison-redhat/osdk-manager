@@ -7,8 +7,9 @@ python:
 - "3.6"
 - "3.7"
 - "3.8"
+before_install:
+- python -m pip install --upgrade pip tox
 install:
-- pip install tox
 - mkdir -p ~/.local/bin
 - echo $PATH | grep -qF ~/.local/bin || export PATH=~/.local/bin:$PATH
 # TODO: Fix minikube
@@ -19,13 +20,14 @@ install:
 # - chmod +x ~/.local/bin/kubectl
 # - minikube start
 script:
-- tox
+# Report on main
+- test $TRAVIS_BRANCH = main && tox -e lint,clean,test,report || tox
 deploy:
 - provider: script
   script: TWINE_PASSWORD=$TESTPYPI_TOKEN TWINE_REPOSITORY=testpypi tox -e release
   on:
     branch: develop
 - provider: script
-  script: TWINE_PASSWORD=$PYPI_TOKEN tox -e report,release
+  script: TWINE_PASSWORD=$PYPI_TOKEN tox -e release
   on:
     branch: main
